@@ -32,10 +32,6 @@ import org.springframework.web.client.RestClient;
  */
 public class Ticker {
 
-	private static final String CHART_URL = "https://query2.finance.yahoo.com/v8/finance/chart/{ticker}";
-
-	private static final String QUOTE_SUMMARY_URL = "https://query2.finance.yahoo.com/v10/finance/quoteSummary/{ticker}";
-
 	private static final QuoteSummaryModule[] DEFAULT_MODULES = { QuoteSummaryModule.SUMMARY_DETAIL,
 			QuoteSummaryModule.SUMMARY_PROFILE, QuoteSummaryModule.FINANCIAL_DATA,
 			QuoteSummaryModule.DEFAULT_KEY_STATISTICS, QuoteSummaryModule.PRICE, QuoteSummaryModule.ASSET_PROFILE };
@@ -46,10 +42,13 @@ public class Ticker {
 
 	private final CrumbManager crumbManager;
 
-	Ticker(String symbol, RestClient restClient, CrumbManager crumbManager) {
+	private final YFinanceUrls urls;
+
+	Ticker(String symbol, RestClient restClient, CrumbManager crumbManager, YFinanceUrls urls) {
 		this.symbol = symbol;
 		this.restClient = restClient;
 		this.crumbManager = crumbManager;
+		this.urls = urls;
 	}
 
 	/**
@@ -97,7 +96,7 @@ public class Ticker {
 	}
 
 	private ChartResponse fetchChart(ChartRequest request) {
-		ChartResponse response = this.restClient.get().uri(CHART_URL, uriBuilder -> {
+		ChartResponse response = this.restClient.get().uri(this.urls.chartUrl(), uriBuilder -> {
 			uriBuilder.queryParam("interval", request.interval().value());
 			uriBuilder.queryParam("includePrePost", request.prePost());
 			uriBuilder.queryParam("events", request.actions() ? "div,splits" : "");
@@ -121,7 +120,7 @@ public class Ticker {
 
 	private QuoteSummaryResponse fetchQuoteSummary(QuoteSummaryModule... modules) {
 		String moduleList = Arrays.stream(modules).map(QuoteSummaryModule::value).collect(Collectors.joining(","));
-		QuoteSummaryResponse response = this.restClient.get().uri(QUOTE_SUMMARY_URL, uriBuilder -> {
+		QuoteSummaryResponse response = this.restClient.get().uri(this.urls.quoteSummaryUrl(), uriBuilder -> {
 			uriBuilder.queryParam("modules", moduleList);
 			uriBuilder.queryParam("crumb", this.crumbManager.crumb());
 			return uriBuilder.build(this.symbol);

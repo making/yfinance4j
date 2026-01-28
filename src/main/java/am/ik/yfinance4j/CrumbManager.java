@@ -14,18 +14,30 @@ public class CrumbManager {
 
 	private static final Logger log = LoggerFactory.getLogger(CrumbManager.class);
 
-	private static final String COOKIE_URL = "https://fc.yahoo.com";
-
-	private static final String CRUMB_URL = "https://query1.finance.yahoo.com/v1/test/getcrumb";
-
 	private final RestClient restClient;
+
+	private final YFinanceUrls urls;
 
 	private volatile @Nullable String cookie;
 
 	private volatile @Nullable String crumb;
 
+	/**
+	 * Creates a new CrumbManager with default URLs.
+	 * @param restClient the RestClient to use for HTTP calls
+	 */
 	public CrumbManager(RestClient restClient) {
+		this(restClient, YFinanceUrls.DEFAULT);
+	}
+
+	/**
+	 * Creates a new CrumbManager with the given URLs.
+	 * @param restClient the RestClient to use for HTTP calls
+	 * @param urls the URLs to use for cookie and crumb retrieval
+	 */
+	public CrumbManager(RestClient restClient, YFinanceUrls urls) {
 		this.restClient = restClient;
+		this.urls = urls;
 	}
 
 	/**
@@ -71,7 +83,7 @@ public class CrumbManager {
 	}
 
 	private void fetchCookie() {
-		this.cookie = this.restClient.get().uri(COOKIE_URL).exchange((request, response) -> {
+		this.cookie = this.restClient.get().uri(this.urls.cookieUrl()).exchange((request, response) -> {
 			String setCookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
 			if (setCookie == null || setCookie.isEmpty()) {
 				throw new YFinanceException("Failed to obtain cookie from Yahoo Finance");
@@ -85,7 +97,11 @@ public class CrumbManager {
 		if (c == null) {
 			throw new YFinanceException("Cookie must be obtained before fetching crumb");
 		}
-		this.crumb = this.restClient.get().uri(CRUMB_URL).header(HttpHeaders.COOKIE, c).retrieve().body(String.class);
+		this.crumb = this.restClient.get()
+			.uri(this.urls.crumbUrl())
+			.header(HttpHeaders.COOKIE, c)
+			.retrieve()
+			.body(String.class);
 		if (this.crumb == null || this.crumb.isEmpty()) {
 			throw new YFinanceException("Failed to obtain crumb from Yahoo Finance");
 		}
