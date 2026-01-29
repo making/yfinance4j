@@ -15,7 +15,7 @@ Built on Spring Framework's `RestClient`, it provides historical price data and 
 <dependency>
     <groupId>am.ik.yfinance4j</groupId>
     <artifactId>yfinance4j</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
