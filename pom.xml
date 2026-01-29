@@ -6,7 +6,7 @@
 
 	<groupId>am.ik.yfinance4j</groupId>
 	<artifactId>yfinance4j</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<name>yfinance4j</name>
 	<description>Java Implementation of yfinance</description>
 
