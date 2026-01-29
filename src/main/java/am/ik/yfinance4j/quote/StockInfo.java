@@ -206,20 +206,75 @@ public final class StockInfo {
 		return getStringNullable("industry");
 	}
 
-	private Optional<String> getString(String key) {
+	/**
+	 * Returns the price (from the price module).
+	 * @return an optional containing the price
+	 */
+	public Optional<BigDecimal> price() {
+		return getNumber("price");
+	}
+
+	/**
+	 * Returns the price (from the price module), or {@code null}.
+	 * @return the price, or {@code null}
+	 */
+	public @Nullable BigDecimal priceNullable() {
+		return getNumberNullable("price");
+	}
+
+	/**
+	 * Returns the regular market price.
+	 * @return an optional containing the regular market price
+	 */
+	public Optional<BigDecimal> regularMarketPrice() {
+		return getNumber("regularMarketPrice");
+	}
+
+	/**
+	 * Returns the regular market price, or {@code null}.
+	 * @return the regular market price, or {@code null}
+	 */
+	public @Nullable BigDecimal regularMarketPriceNullable() {
+		return getNumberNullable("regularMarketPrice");
+	}
+
+	/**
+	 * Returns the string value associated with the given key.
+	 * @param key the field key
+	 * @return an optional containing the string value, or empty if not present or not a
+	 * string
+	 */
+	public Optional<String> getString(String key) {
 		return Optional.ofNullable(getStringNullable(key));
 	}
 
-	private @Nullable String getStringNullable(String key) {
+	/**
+	 * Returns the string value associated with the given key, or {@code null}.
+	 * @param key the field key
+	 * @return the string value, or {@code null} if not present or not a string
+	 */
+	public @Nullable String getStringNullable(String key) {
 		Object value = this.raw.get(key);
 		return value instanceof String s ? s : null;
 	}
 
-	private Optional<BigDecimal> getNumber(String key) {
+	/**
+	 * Returns the numeric value associated with the given key as a {@link BigDecimal}.
+	 * @param key the field key
+	 * @return an optional containing the numeric value, or empty if not present or not a
+	 * number
+	 */
+	public Optional<BigDecimal> getNumber(String key) {
 		return Optional.ofNullable(getNumberNullable(key));
 	}
 
-	private @Nullable BigDecimal getNumberNullable(String key) {
+	/**
+	 * Returns the numeric value associated with the given key as a {@link BigDecimal}, or
+	 * {@code null}.
+	 * @param key the field key
+	 * @return the numeric value, or {@code null} if not present or not a number
+	 */
+	public @Nullable BigDecimal getNumberNullable(String key) {
 		Object value = this.raw.get(key);
 		return value instanceof Number n ? new BigDecimal(n.toString()) : null;
 	}

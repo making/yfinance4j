@@ -158,8 +158,12 @@ info.marketCap().ifPresent(cap -> System.out.println("Market Cap: " + cap));
 String name = info.shortNameNullable();
 BigDecimal price = info.currentPriceNullable();
 
-// Access any field by key
+// Access any field by key (returns Optional<Object>)
 info.get("trailingPE").ifPresent(pe -> System.out.println("P/E: " + pe));
+
+// Access any field with type-safe methods
+info.getString("shortName").ifPresent(name -> System.out.println("Name: " + name));
+info.getNumber("trailingPE").ifPresent(pe -> System.out.println("P/E: " + pe));
 
 // Access all raw data
 Map<String, Object> raw = info.raw();
@@ -176,9 +180,18 @@ Available typed accessors (each has both `Optional` and `Nullable` variants):
 | `exchange()` | `exchangeNullable()` | `String` |
 | `quoteType()` | `quoteTypeNullable()` | `String` |
 | `currentPrice()` | `currentPriceNullable()` | `BigDecimal` |
+| `price()` | `priceNullable()` | `BigDecimal` |
+| `regularMarketPrice()` | `regularMarketPriceNullable()` | `BigDecimal` |
 | `marketCap()` | `marketCapNullable()` | `BigDecimal` |
 | `sector()` | `sectorNullable()` | `String` |
 | `industry()` | `industryNullable()` | `String` |
+
+For accessing arbitrary fields with type safety:
+
+| Method | Nullable variant | Return type |
+|---|---|---|
+| `getString(key)` | `getStringNullable(key)` | `String` |
+| `getNumber(key)` | `getNumberNullable(key)` | `BigDecimal` |
 
 You can also query specific modules:
 
@@ -211,6 +224,32 @@ CrumbManager crumbManager = new CrumbManager(restClient);
 crumbManager.refresh(); // Pre-fetch cookie and crumb
 
 YFinance yf = new YFinance(restClient, crumbManager);
+```
+
+### Custom URLs
+
+If you need to use a proxy or override the default Yahoo Finance endpoints, use `YFinanceUrls`:
+
+```java
+import am.ik.yfinance4j.YFinanceUrls;
+
+YFinanceUrls urls = YFinanceUrls.builder()
+    .cookieUrl("https://my-proxy.example.com/cookie")
+    .crumbUrl("https://my-proxy.example.com/crumb")
+    .chartUrl("https://my-proxy.example.com/v8/finance/chart/{ticker}")
+    .quoteSummaryUrl("https://my-proxy.example.com/v10/finance/quoteSummary/{ticker}")
+    .build();
+
+YFinance yf = new YFinance(restClient, urls);
+```
+
+You can override only specific URLs; unspecified ones default to Yahoo Finance's standard endpoints:
+
+```java
+// Only override the cookie URL
+YFinanceUrls urls = YFinanceUrls.builder()
+    .cookieUrl("https://my-proxy.example.com/cookie")
+    .build();
 ```
 
 ### Error Handling

@@ -74,15 +74,22 @@ class ReadmeExampleTest {
 		assertThat(info.sector()).isPresent();
 		assertThat(info.industry()).isPresent();
 		assertThat(info.marketCap()).isPresent();
+		assertThat(info.regularMarketPrice()).isPresent();
 
 		// Nullable-returning methods
 		String name = info.shortNameNullable();
 		assertThat(name).isNotNull();
 		BigDecimal price = info.currentPriceNullable();
 		assertThat(price).isNotNull();
+		BigDecimal regularMarketPrice = info.regularMarketPriceNullable();
+		assertThat(regularMarketPrice).isNotNull();
 
-		// Access by key
+		// Access by key (returns Optional<Object>)
 		assertThat(info.get("trailingPE")).isPresent();
+
+		// Access with type-safe methods
+		assertThat(info.getString("shortName")).isPresent();
+		assertThat(info.getNumber("trailingPE")).isPresent();
 
 		// Raw map
 		Map<String, Object> raw = info.raw();
@@ -116,6 +123,24 @@ class ReadmeExampleTest {
 
 		YFinance yf = new YFinance(restClient, crumbManager);
 		assertThat(yf.ticker("AAPL").history()).isNotEmpty();
+	}
+
+	@Test
+	void customUrlsExampleCompiles() {
+		// This test only verifies the README example compiles correctly.
+		// Actual URL substitution is tested in YFinanceUrlsTest with MockServer.
+		YFinanceUrls urls = YFinanceUrls.builder()
+			.cookieUrl("https://my-proxy.example.com/cookie")
+			.crumbUrl("https://my-proxy.example.com/crumb")
+			.chartUrl("https://my-proxy.example.com/v8/finance/chart/{ticker}")
+			.quoteSummaryUrl("https://my-proxy.example.com/v10/finance/quoteSummary/{ticker}")
+			.build();
+		assertThat(urls.cookieUrl()).isEqualTo("https://my-proxy.example.com/cookie");
+
+		// Partial override example
+		YFinanceUrls partial = YFinanceUrls.builder().cookieUrl("https://my-proxy.example.com/cookie").build();
+		assertThat(partial.cookieUrl()).isEqualTo("https://my-proxy.example.com/cookie");
+		assertThat(partial.crumbUrl()).isEqualTo(YFinanceUrls.DEFAULT.crumbUrl());
 	}
 
 	@Test
